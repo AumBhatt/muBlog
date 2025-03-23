@@ -1,7 +1,22 @@
 package app
 
-import "log"
+import (
+	"log"
+	"muBlog/internal/database"
+	"muBlog/internal/handlers"
+	"muBlog/internal/services"
+	"muBlog/internal/stores"
+	"net/http"
+)
 
 func App() {
+	db := database.New()
+	userStore := stores.NewUserStore(db)
+	userService := services.NewUserService(userStore)
+	userHandler := handlers.NewUserHandler(userService)
+
+	http.HandleFunc("GET /users/*", userHandler.HandleGetById)
+
 	log.Println("App running @ http://localhost:3000")
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }

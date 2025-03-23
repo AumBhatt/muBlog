@@ -10,6 +10,10 @@ type UserStore struct {
 	db *database.Connection
 }
 
+func NewUserStore(db *database.Connection) *UserStore {
+	return &UserStore{db}
+}
+
 func (store *UserStore) FindById(id string) *models.User {
 	stmt, err := store.db.Prepare("SELECT * FROM users WHERE id = ?")
 
@@ -18,8 +22,8 @@ func (store *UserStore) FindById(id string) *models.User {
 	}
 
 	user := &models.User{}
-	row := stmt.QueryRow(stmt)
-	row.Scan(&user)
+	row := stmt.QueryRow(id)
+	row.Scan(&user.Id, &user.Username, &user.MailId, &user.ActiveSince)
 
 	return user
 }
