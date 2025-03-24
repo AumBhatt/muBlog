@@ -1,7 +1,7 @@
 package stores
 
 import (
-	"log"
+	"fmt"
 	"muBlog/internal/database"
 	"muBlog/internal/models"
 )
@@ -14,16 +14,31 @@ func NewUserStore(db *database.Connection) *UserStore {
 	return &UserStore{db}
 }
 
-func (store *UserStore) FindById(id string) *models.User {
-	stmt, err := store.db.Prepare("SELECT * FROM users WHERE id = ?")
+func (store *UserStore) FindById(id string) (*models.User, error) {
 
+	stmt, err := store.db.Prepare("SELECT * FROM users WHERE id = ?")
 	if err != nil {
-		log.Fatalln(err)
+		return nil, fmt.Errorf("FindById UserStore: %s", err)
 	}
 
 	user := &models.User{}
 	row := stmt.QueryRow(id)
 	row.Scan(&user.Id, &user.Username, &user.MailId, &user.ActiveSince)
 
-	return user
+	return user, nil
+}
+
+func (store *UserStore) CreateUser (user *models.User) error {
+	
+	stmt, err := store.db.Prepare("INSERT INTO users (id, username, mailId, activeSince) VALUES (?, ?, ?, ?)")
+	if err != nil {
+		return fmt.Errorf("AddUser UserStore: %s", err)
+	}
+
+	_, err = stmt.Exec(user.Id, user.Username, user.MailId, user.ActiveSince)
+	if err != nil {
+		return fmt.Errorf("AddUser UserStore: %s", err)
+	}
+
+	return nil
 }
