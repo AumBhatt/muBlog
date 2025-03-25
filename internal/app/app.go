@@ -7,6 +7,8 @@ import (
 	"muBlog/internal/services"
 	"muBlog/internal/stores"
 	"net/http"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 func App() {
@@ -15,8 +17,12 @@ func App() {
 	userService := services.NewUserService(userStore)
 	userHandler := handlers.NewUserHandler(userService)
 
-	http.HandleFunc("GET /users/*", userHandler.GetById)
+	router := httprouter.New()
+
+	router.GET("/users/:id", userHandler.GetById)
+	router.POST("/users/new", userHandler.CreateUser)
+
 
 	log.Println("App running @ http://localhost:3000")
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	log.Fatal(http.ListenAndServe(":3000", router))
 }

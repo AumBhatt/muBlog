@@ -6,7 +6,8 @@ import (
 	"muBlog/internal/models"
 	"muBlog/internal/services"
 	"net/http"
-	"strings"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type UserHandler struct {
@@ -17,11 +18,8 @@ func NewUserHandler(service *services.UserService) *UserHandler {
 	return &UserHandler{service}
 }
 
-func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request) {
-	paths := strings.Split(req.URL.Path, "/users/")
-	id := paths[len(paths)-1]
-
-	user, err := handler.service.GetUserById(id)
+func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+	user, err := handler.service.GetUserById(ps.ByName("id"))
 
 	if err != nil {
 		log.Println(err)
@@ -44,7 +42,7 @@ func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request) 
 	}
 }
 
-func (handler *UserHandler) CreateUser(res http.ResponseWriter, req *http.Request) {
+func (handler *UserHandler) CreateUser(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 	var newUser *models.User
 	err := json.NewDecoder(req.Body).Decode(newUser)
 	if err != nil {
