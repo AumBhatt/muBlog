@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
-	"muBlog/internal/models"
+	"muBlog/internal/api/schemas"
 	"muBlog/internal/services"
 	"net/http"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -19,6 +21,9 @@ func NewUserHandler(service *services.UserService) *UserHandler {
 }
 
 func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+	log.Println("/users/", ps.ByName("id"))
+
 	user, err := handler.service.GetUserById(ps.ByName("id"))
 
 	if err != nil {
@@ -43,18 +48,40 @@ func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request, 
 }
 
 func (handler *UserHandler) CreateUser(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
-	var newUser *models.User
-	err := json.NewDecoder(req.Body).Decode(newUser)
+
+	log.Println("/users/new")
+
+	var body schemas.CreateUserRequest
+	err := json.NewDecoder(req.Body).Decode(&body)
 	if err != nil {
 		log.Println("HandleAddUser: ", err)
 		res.WriteHeader(500)
 		return
 	}
 
-	err = handler.service.CreateUser(newUser)
+	validate := validator.New()
+	err = validate.Struct(body)
+
+	if err != nil {
+		errors := err.(validator.ValidationErrors)
+		http.Error(res, fmt.Sprintf("Validation error: %s", errors), http.StatusBadRequest)
+	}
+
+	user, err := handler.service.CreateUser(&body)
 	if err != nil {
 		log.Println(err)
 		res.WriteHeader(500)
+		json.NewEncoder(res).Encode(&schemas.CreateUserResponse{
+			ErrorSchema: &schemas.ErrorSchema{
+				Code: "ErrCreateUser",
+				Message: fmt.Sprintf("Error in creating user: %s", err),
+			},
+		})
 		return
 	}
+
+	json.NewEncoder(res).Encode(&schemas.CreateUserResponse{
+		Id: &user.Id,
+		Username: &user.Username,
+	})
 }
