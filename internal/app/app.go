@@ -14,14 +14,17 @@ import (
 func App() {
 	db := database.New()
 	userStore := stores.NewUserStore(db)
+
+	authService := services.NewAuthService(userStore)
+
 	userService := services.NewUserService(userStore)
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(authService, userService)
 
 	router := httprouter.New()
 
-	router.GET("/users/:id", userHandler.GetById)
-	router.POST("/users/new", userHandler.CreateUser)
-
+	router.POST("/user/login", userHandler.UserLogin)
+	router.GET("/user/:id", userHandler.GetById)
+	router.POST("/user/new", userHandler.CreateUser)
 
 	log.Println("App running @ http://localhost:3000")
 	log.Fatal(http.ListenAndServe(":3000", router))

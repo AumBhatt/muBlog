@@ -13,49 +13,53 @@ import (
 )
 
 type UserHandler struct {
-	service *services.UserService
+	authService *services.AuthService
+	userService *services.UserService
 }
 
-func NewUserHandler(service *services.UserService) *UserHandler {
-	return &UserHandler{service}
+func NewUserHandler(authService *services.AuthService, userService *services.UserService) *UserHandler {
+	return &UserHandler{
+		authService: authService,
+		userService: userService,
+	}
 }
 
 func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 
-	log.Println("/users/", ps.ByName("id"))
+	userId := ps.ByName("id")
 
-	user, err := handler.service.GetUserById(ps.ByName("id"))
+	log.Println("/user/", userId)
 
-	if err != nil {
-		log.Println(err)
-		res.WriteHeader(500)
+	if userId == "" {
+		res.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	payload, err := json.Marshal(user)
+	user, err := handler.userService.GetUserById(userId)
+
 	if err != nil {
-		log.Println("HandleGetById: ", err)
-		res.WriteHeader(500)
+		log.Println("Handle GetById:", err)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	_, err = res.Write(payload)
-	if err != nil {
-		log.Println("HandleGetById: ", err)
-		res.WriteHeader(500)
-		return
-	}
+	json.NewEncoder(res).Encode(schemas.GetUserByIdResponse{
+		Id:          user.Id,
+		Username:    user.Username,
+		MailId:      user.MailId,
+		ActiveSince: user.ActiveSince,
+	})
 }
 
 func (handler *UserHandler) CreateUser(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
-	log.Println("/users/new")
+	log.Println("/user/new")
 
 	var body schemas.CreateUserRequest
 	err := json.NewDecoder(req.Body).Decode(&body)
 	if err != nil {
-		log.Println("HandleAddUser: ", err)
-		res.WriteHeader(500)
+		log.Println("Handle CreateUser: ", err)
+		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -67,21 +71,52 @@ func (handler *UserHandler) CreateUser(res http.ResponseWriter, req *http.Reques
 		http.Error(res, fmt.Sprintf("Validation error: %s", errors), http.StatusBadRequest)
 	}
 
-	user, err := handler.service.CreateUser(&body)
+	response, err := handler.userService.CreateUser(&body)
 	if err != nil {
 		log.Println(err)
-		res.WriteHeader(500)
+		res.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(res).Encode(&schemas.CreateUserResponse{
 			ErrorSchema: &schemas.ErrorSchema{
-				Code: "ErrCreateUser",
+				Code:    "ErrCreateUser",
 				Message: fmt.Sprintf("Error in creating user: %s", err),
 			},
 		})
 		return
 	}
 
-	json.NewEncoder(res).Encode(&schemas.CreateUserResponse{
-		Id: &user.Id,
-		Username: &user.Username,
-	})
+	json.NewEncoder(res).Encode(response)
+}
+
+func (handler *UserHandler) UserLogin(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
+
+	log.Println("/user/login")
+
+	var body schemas.UserLoginRequest
+	err := json.NewDecoder(req.Body).Decode(&body)
+	if err != nil {
+		log.Println("Handle UserLogin:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(body)
+
+	if err != nil {
+		errors := err.(validator.ValidationErrors)
+		json.NewEncoder(res).Encode(schemas.ErrorSchema{
+			Code:    "ValidationError",
+			Message: errors[len(errors)-1].Field(),
+		})
+		return
+	}
+
+	response, err := handler.authService.CreateToken(&body)
+
+	if err != nil {
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	json.NewEncoder(res).Encode(response)
 }

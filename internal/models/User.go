@@ -5,4 +5,5 @@ type User struct {
 	Username    string
 	MailId      string
 	ActiveSince int64
+	Password    string
 }

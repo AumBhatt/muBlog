@@ -6,6 +6,8 @@ import (
 	"muBlog/internal/stores"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/google/uuid"
 )
 
@@ -17,23 +19,38 @@ func NewUserService(store *stores.UserStore) *UserService {
 	return &UserService{store}
 }
 
-func (service *UserService) GetUserById(id string) (*models.User, error) {
-	return service.store.FindById(id)
+func (service *UserService) GetUserById(id string) (*schemas.GetUserByIdResponse, error) {
+	user, _ := service.store.FindById(id)
+	return &schemas.GetUserByIdResponse{
+		Id:          user.Id,
+		Username:    user.Username,
+		MailId:      user.MailId,
+		ActiveSince: user.ActiveSince,
+	}, nil
 }
 
-func (service *UserService) CreateUser(request *schemas.CreateUserRequest) (*models.User, error) {
+func (service *UserService) CreateUser(request *schemas.CreateUserRequest) (*schemas.CreateUserResponse, error) {
 
-	user := &models.User{
-		Id: uuid.NewString(),
-		Username: request.Username,
-		MailId: request.MailId,
-		ActiveSince: time.Now().UnixMilli(),
-	}
-
-	err := service.store.CreateUser(user)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
 		return nil, err
 	}
 
-	return user, nil
+	user := &models.User{
+		Id:          uuid.NewString(),
+		Username:    request.Username,
+		MailId:      request.MailId,
+		ActiveSince: time.Now().UnixMilli(),
+		Password:    string(hashedPassword),
+	}
+
+	err = service.store.CreateUser(user)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.CreateUserResponse{
+		Id:       &user.Id,
+		Username: &user.Username,
+	}, nil
 }
