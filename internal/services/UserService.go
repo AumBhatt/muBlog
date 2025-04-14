@@ -29,7 +29,7 @@ func (service *UserService) GetUserById(id string) (*schemas.GetUserByIdResponse
 	}, nil
 }
 
-func (service *UserService) CreateUser(request *schemas.CreateUserRequest) (*schemas.CreateUserResponse, error) {
+func (service *UserService) CreateUser(request *schemas.SignupRequest) (*schemas.SignupResponse, error) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
@@ -49,7 +49,7 @@ func (service *UserService) CreateUser(request *schemas.CreateUserRequest) (*sch
 		return nil, err
 	}
 
-	return &schemas.CreateUserResponse{
+	return &schemas.SignupResponse{
 		Id:       &user.Id,
 		Username: &user.Username,
 	}, nil
