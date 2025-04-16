@@ -7,7 +7,7 @@ type GetUserByIdRequest struct {
 type GetUserByIdResponse struct {
 	Id          string `json:"id,omitempty"`
 	Username    string `json:"username,omitempty"`
-	MailId      string `json:"mailId,omitempty"`
+	Email       string `json:"email,omitempty"`
 	ActiveSince int64  `json:"activeSince,omitempty"`
 	*ErrorSchema
 }

@@ -2,7 +2,7 @@ package schemas
 
 type SignupRequest struct {
 	Username string `json:"username" validate:"required,min=3,max=20"`
-	MailId   string `json:"mailId" validate:"required,email"`
+	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,min=8,max=40"`
 }
 
@@ -18,7 +18,6 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Id    *string `json:"id,omitempty"`
 	Token *string `json:"token,omitempty"`
 	*ErrorSchema
 }

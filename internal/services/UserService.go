@@ -28,7 +28,7 @@ func (service *UserService) GetUserById(id string) (*schemas.GetUserByIdResponse
 	return &schemas.GetUserByIdResponse{
 		Id:          user.Id,
 		Username:    user.Username,
-		MailId:      user.MailId,
+		Email:       user.Email,
 		ActiveSince: user.ActiveSince,
 	}, nil
 }
@@ -43,7 +43,7 @@ func (service *UserService) CreateUser(request *schemas.SignupRequest) (*schemas
 	user := &models.User{
 		Id:          uuid.NewString(),
 		Username:    request.Username,
-		MailId:      request.MailId,
+		Email:       request.Email,
 		ActiveSince: time.Now().UnixMilli(),
 		Password:    string(hashedPassword),
 	}

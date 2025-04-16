@@ -44,7 +44,7 @@ func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request, 
 	json.NewEncoder(res).Encode(schemas.GetUserByIdResponse{
 		Id:          user.Id,
 		Username:    user.Username,
-		MailId:      user.MailId,
+		Email:       user.Email,
 		ActiveSince: user.ActiveSince,
 	})
 }

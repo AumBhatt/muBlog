@@ -3,8 +3,6 @@ package app
 import (
 	"log"
 	"muBlog/internal/api/handlers"
-	"muBlog/internal/api/middlewares"
-	"muBlog/internal/api/schemas"
 	"muBlog/internal/database"
 	"muBlog/internal/services"
 	"muBlog/internal/stores"
@@ -25,8 +23,11 @@ func App() {
 
 	router := httprouter.New()
 
-	router.POST("/auth/signup", middlewares.ValidateRequest[schemas.SignupRequest](authHandler.Login))
-	router.POST("/auth/login", middlewares.ValidateRequest[schemas.LoginRequest](authHandler.Login))
+	// router.POST("/auth/signup", middlewares.ValidateRequest[schemas.SignupRequest](authHandler.Signup))
+	// router.POST("/auth/login", middlewares.ValidateRequest[schemas.LoginRequest](authHandler.Login))
+
+	router.POST("/auth/signup", authHandler.Signup)
+	router.POST("/auth/login", authHandler.Login)
 
 	router.GET("/user/:id", userHandler.GetById)
 

@@ -1,10 +1,12 @@
 package services
 
 import (
+	"crypto/ecdsa"
+	"crypto/elliptic"
+	"crypto/rand"
 	"fmt"
 	"log"
 	"muBlog/internal/api/schemas"
-	"muBlog/internal/services/utils"
 	"muBlog/internal/stores"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,12 +14,12 @@ import (
 )
 
 type AuthService struct {
-	secret    []byte
+	secret    *ecdsa.PrivateKey
 	userStore *stores.UserStore
 }
 
 func NewAuthService(userStore *stores.UserStore) *AuthService {
-	secret, err := utils.GenerateNewSecret()
+	secret, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -30,11 +32,6 @@ func NewAuthService(userStore *stores.UserStore) *AuthService {
 
 func (service *AuthService) CreateToken(request *schemas.LoginRequest) (*schemas.LoginResponse, error) {
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
-	if err != nil {
-		return nil, err
-	}
-
 	user, err := service.userStore.FindByUsername(request.Username)
 	if err != nil {
 		return nil, err
@@ -44,12 +41,14 @@ func (service *AuthService) CreateToken(request *schemas.LoginRequest) (*schemas
 		return &schemas.LoginResponse{
 			ErrorSchema: &schemas.ErrorSchema{
 				Code:    "NoUserWithUsername",
-				Message: fmt.Sprintf("No user with username '%s' found", user.Username),
+				Message: fmt.Sprintf("No user with username '%s' found", request.Username),
 			},
 		}, nil
 	}
 
-	if string(hashedPassword) != user.Password {
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password))
+
+	if err != nil {
 		return &schemas.LoginResponse{
 			ErrorSchema: &schemas.ErrorSchema{
 				Code:    "InvalidPassword",
@@ -67,11 +66,11 @@ func (service *AuthService) CreateToken(request *schemas.LoginRequest) (*schemas
 
 	tokenString, err := token.SignedString(service.secret)
 	if err != nil {
+		log.Fatalln("Error generating token", err)
 		return nil, err
 	}
 
 	return &schemas.LoginResponse{
-		Id:    &user.Id,
 		Token: &tokenString,
 	}, nil
 }

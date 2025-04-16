@@ -3,7 +3,7 @@ package models
 type User struct {
 	Id          string
 	Username    string
-	MailId      string
+	Email       string
 	ActiveSince int64
 	Password    string
 }

@@ -17,7 +17,7 @@ func ValidateRequest[schema any](next httprouter.Handle) func(http.ResponseWrite
 
 		var body schema
 
-		json.NewDecoder(req.Body).Decode(body)
+		json.NewDecoder(req.Body).Decode(&body)
 		validate := validator.New()
 		err := validate.Struct(body)
 

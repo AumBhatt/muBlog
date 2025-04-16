@@ -31,7 +31,7 @@ func (handler *AuthHandler) Signup(res http.ResponseWriter, req *http.Request, _
 	var body schemas.SignupRequest
 	err := json.NewDecoder(req.Body).Decode(&body)
 	if err != nil {
-		log.Println("Handle CreateUser: ", err)
+		log.Println("Handle CreateUser: ", err.Error())
 		res.WriteHeader(http.StatusInternalServerError)
 		return
 	}
