@@ -10,10 +10,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func ValidateRequest[schema any](res http.ResponseWriter, req *http.Request, params httprouter.Params) func(httprouter.Handle) httprouter.Handle {
+func ValidateRequest[schema any](next httprouter.Handle) func(http.ResponseWriter, *http.Request, httprouter.Params) {
 
 	// execute this wrapper func each time the endpoint is been hit
-	return func(handler httprouter.Handle) httprouter.Handle {
+	return func(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
 
 		var body schema
 
@@ -28,15 +28,15 @@ func ValidateRequest[schema any](res http.ResponseWriter, req *http.Request, par
 			errors := err.(validator.ValidationErrors)
 			for _, err := range errors {
 				response.Errors = append(response.Errors, schemas.ErrorSchema{
-					Code:    fmt.Sprintf("Invalid%s", err.ActualTag()),
-					Message: err.Error(),
+					Code:    fmt.Sprintf("Invalid%s", err.Field()),
+					Message: fmt.Sprintf("%s is %s", err.Field(), err.Tag()),
 				})
 			}
 
 			json.NewEncoder(res).Encode(response)
-			return nil
+			return
 		}
 
-		return handler
+		next(res, req, params)
 	}
 }

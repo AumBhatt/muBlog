@@ -20,7 +20,11 @@ func NewUserService(store *stores.UserStore) *UserService {
 }
 
 func (service *UserService) GetUserById(id string) (*schemas.GetUserByIdResponse, error) {
-	user, _ := service.store.FindById(id)
+	user, err := service.store.FindById(id)
+	if err != nil {
+		return nil, err
+	}
+
 	return &schemas.GetUserByIdResponse{
 		Id:          user.Id,
 		Username:    user.Username,

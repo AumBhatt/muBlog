@@ -64,7 +64,7 @@ func (handler *AuthHandler) Login(res http.ResponseWriter, req *http.Request, _ 
 
 	log.Println("/auth/login")
 
-	var body schemas.UserLoginRequest
+	var body schemas.LoginRequest
 	err := json.NewDecoder(req.Body).Decode(&body)
 	if err != nil {
 		log.Println("Handle UserLogin:", err)

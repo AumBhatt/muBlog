@@ -28,7 +28,7 @@ func NewAuthService(userStore *stores.UserStore) *AuthService {
 	}
 }
 
-func (service *AuthService) CreateToken(request *schemas.UserLoginRequest) (*schemas.UserLoginResponse, error) {
+func (service *AuthService) CreateToken(request *schemas.LoginRequest) (*schemas.LoginResponse, error) {
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
 	if err != nil {
@@ -41,7 +41,7 @@ func (service *AuthService) CreateToken(request *schemas.UserLoginRequest) (*sch
 	}
 
 	if user == nil {
-		return &schemas.UserLoginResponse{
+		return &schemas.LoginResponse{
 			ErrorSchema: &schemas.ErrorSchema{
 				Code:    "NoUserWithUsername",
 				Message: fmt.Sprintf("No user with username '%s' found", user.Username),
@@ -50,7 +50,7 @@ func (service *AuthService) CreateToken(request *schemas.UserLoginRequest) (*sch
 	}
 
 	if string(hashedPassword) != user.Password {
-		return &schemas.UserLoginResponse{
+		return &schemas.LoginResponse{
 			ErrorSchema: &schemas.ErrorSchema{
 				Code:    "InvalidPassword",
 				Message: "Authentication failed due to invalid password.",
@@ -70,7 +70,7 @@ func (service *AuthService) CreateToken(request *schemas.UserLoginRequest) (*sch
 		return nil, err
 	}
 
-	return &schemas.UserLoginResponse{
+	return &schemas.LoginResponse{
 		Id:    &user.Id,
 		Token: &tokenString,
 	}, nil

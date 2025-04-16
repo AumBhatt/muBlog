@@ -12,12 +12,12 @@ type SignupResponse struct {
 	*ErrorSchema
 }
 
-type UserLoginRequest struct {
+type LoginRequest struct {
 	Username string `json:"username" validate:"required"`
 	Password string `json:"password" validate:"required"`
 }
 
-type UserLoginResponse struct {
+type LoginResponse struct {
 	Id    *string `json:"id,omitempty"`
 	Token *string `json:"token,omitempty"`
 	*ErrorSchema
