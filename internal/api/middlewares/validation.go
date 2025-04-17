@@ -1,8 +1,11 @@
 package middlewares
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"log"
 	"muBlog/internal/api/schemas"
 	"net/http"
 
@@ -15,11 +18,22 @@ func ValidateRequest[schema any](next httprouter.Handle) func(http.ResponseWrite
 	// execute this wrapper func each time the endpoint is been hit
 	return func(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
 
-		var body schema
+		bodyBytes, err := io.ReadAll(req.Body)
+		if err != nil {
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 
-		json.NewDecoder(req.Body).Decode(&body)
+		var body schema
+		err = json.Unmarshal(bodyBytes, &body)
+		if err != nil {
+			log.Println(err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
 		validate := validator.New()
-		err := validate.Struct(body)
+		err = validate.Struct(body)
 
 		var response schemas.ValidationErrorSchema
 		response.Code = "ValidationErrors"
@@ -36,6 +50,8 @@ func ValidateRequest[schema any](next httprouter.Handle) func(http.ResponseWrite
 			json.NewEncoder(res).Encode(response)
 			return
 		}
+
+		req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
 		next(res, req, params)
 	}
