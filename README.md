@@ -1,10 +1,13 @@
 # muBlog
 Micro-blogging
 
-### To-Do
+## To-Do
 
-- [ ] Request schema
-- [ ] Request validation
+### Middlewares
+- [x] validation
 
-- [ ] Response schema
-- [ ] Response error handling
+### Endpoints
+- [ ] /post/create
+- [ ] /post/delete
+- [ ] /post/edit
+- [ ] /post/react

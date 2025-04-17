@@ -51,7 +51,7 @@ func (handler *AuthHandler) Signup(res http.ResponseWriter, req *http.Request, _
 		json.NewEncoder(res).Encode(&schemas.SignupResponse{
 			ErrorSchema: &schemas.ErrorSchema{
 				Code:    "ErrCreateUser",
-				Message: fmt.Sprintf("Error in creating user: %s", err),
+				Message: "Internal server error: Could not create a user",
 			},
 		})
 		return
