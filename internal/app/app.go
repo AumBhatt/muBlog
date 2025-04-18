@@ -16,6 +16,7 @@ import (
 func App() {
 	db := database.New()
 	userStore := stores.NewUserStore(db)
+	stores.NewPostStore(db)
 
 	authService := services.NewAuthService(userStore)
 	userService := services.NewUserService(userStore)

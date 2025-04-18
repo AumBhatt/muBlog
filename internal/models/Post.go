@@ -1,25 +1,29 @@
 package models
 
-import (
-	"time"
+type Reaction int
 
-	"github.com/google/uuid"
+const (
+	Like Reaction = iota
+	Dislike
+	Funny
+	Support
 )
+
+var reactionName = map[Reaction]string{
+	Like:    "like",
+	Dislike: "dislike",
+	Funny:   "Funny",
+	Support: "support",
+}
+
+func (r Reaction) String() string {
+	return reactionName[r]
+}
 
 type Post struct {
 	Id        string
 	CreatedAt int64
 	Content   string
-	Likes     []string
+	Reactions map[Reaction]string
 	UserId    string
-}
-
-func NewPost(userId string, content string) *Post {
-	return &Post{
-		Id:        uuid.New().String(),
-		CreatedAt: time.Time.UnixMilli(time.Now()),
-		Content:   content,
-		Likes:     []string{},
-		UserId:    userId,
-	}
 }
