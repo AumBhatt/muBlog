@@ -23,7 +23,7 @@ func (r Reaction) String() string {
 type Post struct {
 	Id        string
 	CreatedAt int64
+	AuthorId  string
 	Content   string
-	Reactions map[Reaction]string
-	UserId    string
+	Reactions map[Reaction][]string
 }

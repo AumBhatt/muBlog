@@ -1,8 +1,11 @@
 package schemas
 
-type CreateRequest struct{}
+type CreatePostRequest struct {
+	Content  string `json:"content" validate:"required,uuid"`
+	AuthorId string `json:"authorId" validate:"required"`
+}
 
-type CreateResponse struct{}
+type CreatePostResponse struct{}
 
 type EditRequest struct{}
 

@@ -1,7 +1,7 @@
 package schemas
 
 type GetUserByIdRequest struct {
-	Id string `json:"id" validate:"required,min=3,max=20"`
+	Id string `json:"id" validate:"required,uuid"`
 }
 
 type GetUserByIdResponse struct {
