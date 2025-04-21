@@ -5,7 +5,9 @@ type CreatePostRequest struct {
 	AuthorId string `json:"authorId" validate:"required"`
 }
 
-type CreatePostResponse struct{}
+type CreatePostResponse struct {
+	Id string `json:"postId"`
+}
 
 type EditRequest struct{}
 
@@ -23,9 +25,12 @@ type GetByUserIdRequest struct{}
 
 type GetByUserIdResponse struct{}
 
-type ReactRequest struct{}
+type AddReactionRequest struct {
+	PostId       string `json:"postId" validate:"required,uuid"`
+	ReactionType string `json:"reactionType" validate:"required"`
+}
 
-type ReactResponse struct{}
+type AddReactionResponse struct{}
 
 type ReactionsRequest struct{}
 

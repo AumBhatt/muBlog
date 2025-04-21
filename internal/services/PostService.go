@@ -18,14 +18,24 @@ func NewPostService(postStore *stores.PostStore, userStore *stores.UserStore) *P
 	return &PostService{postStore, userStore}
 }
 
-func (service *PostService) CreatePost(res schemas.CreatePostResponse, req schemas.CreatePostRequest) error {
+func (service *PostService) CreatePost(req schemas.CreatePostRequest) (*schemas.CreatePostResponse, error) {
 
-	service.postStore.CreatePost(models.Post{
+	post := models.Post{
 		Id:        uuid.NewString(),
 		CreatedAt: time.Now().UnixMilli(),
 		AuthorId:  "",
 		Content:   "",
-		Reactions: map[models.Reaction][]string{},
-	})
-	return nil
+	}
+
+	err := service.postStore.CreatePost(post)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.CreatePostResponse{
+		Id: post.Id,
+	}, nil
 }
+
+func (service *PostService) AddReaction(req schemas.AddReactionRequest) {}

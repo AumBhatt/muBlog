@@ -1,29 +1,36 @@
 package models
 
-type Reaction int
+type ReactionType int
 
 const (
-	Like Reaction = iota
+	Like ReactionType = iota
 	Dislike
 	Funny
 	Support
 )
 
-var reactionName = map[Reaction]string{
+var reactionName = map[ReactionType]string{
 	Like:    "like",
 	Dislike: "dislike",
 	Funny:   "Funny",
 	Support: "support",
 }
 
-func (r Reaction) String() string {
+func (r ReactionType) String() string {
 	return reactionName[r]
 }
 
-type Post struct {
+type Reactions struct {
 	Id        string
-	CreatedAt int64
-	AuthorId  string
-	Content   string
-	Reactions map[Reaction][]string
+	UserId    string
+	Type      string
+	Timestamp int64
+}
+
+type Post struct {
+	Id         string
+	AuthorId   string
+	CreatedAt  int64
+	Content    string
+	ReactionId *string
 }
