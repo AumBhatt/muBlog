@@ -1,6 +1,7 @@
 package stores
 
 import (
+	"database/sql"
 	"fmt"
 	"muBlog/internal/database"
 	"muBlog/internal/models"
@@ -16,7 +17,7 @@ func NewPostStore(db *database.Connection) *PostStore {
 
 func (store *PostStore) CreatePost(post models.Post) error {
 
-	stmt, err := store.db.Prepare("INSERT INTO posts (ids, createdAt, authorId, content, reactions) VALUES (?, ?, ?, ?)")
+	stmt, err := store.db.Prepare("INSERT INTO posts (id, createdAt, authorId, content, reactionId) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		return fmt.Errorf("CreatePost db err: %s", err)
 	}
@@ -29,35 +30,48 @@ func (store *PostStore) CreatePost(post models.Post) error {
 	return nil
 }
 
-func (store *PostStore) GetPostReactionsById(id string) (*models.Reactions, error) {
+func (store *PostStore) GetPostReactionsById(id string) (*models.Reaction, error) {
 
 	stmt, err := store.db.Prepare("SELECT * FROM reactions WHERE id = ?")
 	if err != nil {
 		return nil, fmt.Errorf("GetPostreactionsById err: %s", err)
 	}
 
-	var rowData *models.Reactions
+	var rowData *models.Reaction
 
-	stmt.QueryRow(id).Scan(rowData)
+	err = stmt.QueryRow(id).Scan(rowData)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
 
 	return rowData, nil
 }
 
-func (store *PostStore) CreateReaction(reaction models.Reactions) error {
+func (store *PostStore) CreateReaction(reaction models.Reaction) error {
 
-	stmt, err := store.db.Prepare("INSERT INTO reactions (ids, userId, type, timestamp) VALUES (?, ?, ?, ?)")
+	stmt, err := store.db.Prepare("INSERT INTO reactions (id, userId, type, timestamp) VALUES (?, ?, ?, ?)")
 	if err != nil {
-		return fmt.Errorf("AddReaction err: %s", err)
+		return fmt.Errorf("CreateReaction err: %s", err)
 	}
 
 	_, err = stmt.Exec(reaction.Id, reaction.UserId, reaction.Type, reaction.Timestamp)
 	if err != nil {
-		return fmt.Errorf("AddReaction err: %s", err)
+		return fmt.Errorf("CreateReaction err: %s", err)
 	}
 
 	return nil
 }
 
-func (store *PostStore) UpdateReaction(reaction models.Reactions) error {
+func (store *PostStore) UpdateReaction(reactionId string, reactionType string) error {
+
+	stmt, err := store.db.Prepare("UPDATE reactions SET type = ? WHERE id = ?")
+	if err != nil {
+		return fmt.Errorf("UpdateReaction err: %s", err)
+	}
+
+	_, err = stmt.Exec(reactionType, reactionId)
+	if err != nil {
+		return fmt.Errorf("UpdateReaction err: %s", err)
+	}
 	return nil
 }

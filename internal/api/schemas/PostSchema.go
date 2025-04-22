@@ -1,7 +1,7 @@
 package schemas
 
 type CreatePostRequest struct {
-	Content  string `json:"content" validate:"required,uuid"`
+	Content  string `json:"content" validate:"required"`
 	AuthorId string `json:"authorId" validate:"required"`
 }
 
@@ -27,10 +27,15 @@ type GetByUserIdResponse struct{}
 
 type AddReactionRequest struct {
 	PostId       string `json:"postId" validate:"required,uuid"`
+	UserId       string `json:"userId" validate:"required,uuid"`
 	ReactionType string `json:"reactionType" validate:"required"`
 }
 
 type AddReactionResponse struct{}
+
+type GetReactionCountsRequest struct{}
+
+type GetReactionCountsResponse struct{}
 
 type ReactionsRequest struct{}
 

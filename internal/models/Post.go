@@ -20,7 +20,7 @@ func (r ReactionType) String() string {
 	return reactionName[r]
 }
 
-type Reactions struct {
+type Reaction struct {
 	Id        string
 	UserId    string
 	Type      string
