@@ -55,32 +55,34 @@ func (service *PostService) AddReaction(req schemas.AddReactionRequest) (*schema
 		}
 
 		err = service.postStore.CreateReaction(*reaction)
-
 		if err != nil {
 			return nil, err
 		}
-
-		response, err := service.postStore.GetUsersByReactions(reaction.Id)
+	} else {
+		err = service.postStore.UpdateReaction(reaction.Id, req.ReactionType)
 		if err != nil {
 			return nil, err
 		}
-
-		return &schemas.AddReactionResponse{
-			Reactions: response,
-		}, nil
 	}
 
-	err = service.postStore.UpdateReaction(reaction.Id, req.ReactionType)
+	data, err := service.postStore.GetUsersByReactions(reaction.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := service.postStore.GetUsersByReactions(reaction.Id)
-	if err != nil {
-		return nil, err
+	response := schemas.AddReactionResponse{}
+
+	for _, d := range data {
+		response.Reactions = append(response.Reactions, struct {
+			UserId   string `json:"userId"`
+			Username string `json:"username"`
+			Type     string `json:"type"`
+		}{
+			UserId:   d["userId"],
+			Username: d["username"],
+			Type:     d["type"],
+		})
 	}
 
-	return &schemas.AddReactionResponse{
-		Reactions: response,
-	}, nil
+	return &response, nil
 }

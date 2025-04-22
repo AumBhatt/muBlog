@@ -32,7 +32,11 @@ type AddReactionRequest struct {
 }
 
 type AddReactionResponse struct {
-	Reactions []map[string]string
+	Reactions []struct {
+		UserId   string `json:"userId"`
+		Username string `json:"username"`
+		Type     string `json:"type"`
+	}
 }
 
 type GetReactionCountsRequest struct{}

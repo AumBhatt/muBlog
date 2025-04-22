@@ -45,6 +45,8 @@ func (store *PostStore) GetReactionsById(id string) (*models.Reaction, error) {
 	err = stmt.QueryRow(id).Scan(rowData)
 	if err == sql.ErrNoRows {
 		return nil, nil
+	} else if err != nil {
+		return nil, fmt.Errorf("GetPostreactionsById err: %s", err)
 	}
 
 	return rowData, nil
@@ -90,7 +92,7 @@ func (store *PostStore) GetUsersByReactions(reactionId string) ([]map[string]str
 
 	var data []map[string]string
 	stmt, err := store.db.Prepare(`
-		SELECT users.id, users.username, reactions.type
+		SELECT users.id as "userId", users.username as "username", reactions.type as "type"
 			FROM users
 			INNER JOIN reactions ON
 			users.id = reactions.userId
