@@ -31,7 +31,9 @@ type AddReactionRequest struct {
 	ReactionType string `json:"reactionType" validate:"required"`
 }
 
-type AddReactionResponse struct{}
+type AddReactionResponse struct {
+	Reactions []map[string]string
+}
 
 type GetReactionCountsRequest struct{}
 

@@ -46,4 +46,27 @@ func (handler *PostHandler) Create(res http.ResponseWriter, req *http.Request, _
 
 func (handler *PostHandler) React(res http.ResponseWriter, req *http.Request, _ httprouter.Params) {
 
+	var body schemas.AddReactionRequest
+
+	err := json.NewDecoder(req.Body).Decode(&body)
+	if err != nil {
+		log.Println("PostHandler.React:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	response, err := handler.postService.AddReaction(body)
+	if err != nil {
+		log.Println("PostHandler.Create:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(response)
+	if err != nil {
+		log.Println("PostHandler.Create:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
 }

@@ -41,22 +41,33 @@ func (service *PostService) CreatePost(req schemas.CreatePostRequest) (*schemas.
 
 func (service *PostService) AddReaction(req schemas.AddReactionRequest) (*schemas.AddReactionResponse, error) {
 
-	reaction, err := service.postStore.GetPostReactionsById(req.PostId)
+	reaction, err := service.postStore.GetReactionsById(req.PostId)
 	if err != nil {
 		return nil, err
 	}
 
 	if reaction == nil {
-		err = service.postStore.CreateReaction(models.Reaction{
+		reaction = &models.Reaction{
 			Id:        uuid.NewString(),
 			UserId:    req.UserId,
 			Type:      req.ReactionType,
 			Timestamp: time.Now().UnixMilli(),
-		})
+		}
+
+		err = service.postStore.CreateReaction(*reaction)
 
 		if err != nil {
 			return nil, err
 		}
+
+		response, err := service.postStore.GetUsersByReactions(reaction.Id)
+		if err != nil {
+			return nil, err
+		}
+
+		return &schemas.AddReactionResponse{
+			Reactions: response,
+		}, nil
 	}
 
 	err = service.postStore.UpdateReaction(reaction.Id, req.ReactionType)
@@ -64,5 +75,12 @@ func (service *PostService) AddReaction(req schemas.AddReactionRequest) (*schema
 		return nil, err
 	}
 
-	return nil, nil
+	response, err := service.postStore.GetUsersByReactions(reaction.Id)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.AddReactionResponse{
+		Reactions: response,
+	}, nil
 }
