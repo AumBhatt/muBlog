@@ -70,3 +70,31 @@ func (handler *PostHandler) React(res http.ResponseWriter, req *http.Request, _ 
 	}
 
 }
+
+func (handler *PostHandler) GetReactionsCountByPostId(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+	postId := ps.ByName("postId")
+	if postId == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(&schemas.ErrorSchema{
+			Code:    "MissingPostId",
+			Message: "Error: postId is missing in path params.",
+		})
+		return
+	}
+
+	response, err := handler.postService.GetReactionsCountByPostId(postId)
+	if err != nil {
+		log.Println("PostHandler.GetReactionsCountByPostId err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(response)
+	if err != nil {
+		log.Println("PostHandler.GetReactionsCountByPostId err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+}

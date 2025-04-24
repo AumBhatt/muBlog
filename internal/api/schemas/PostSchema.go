@@ -40,12 +40,18 @@ type AddReactionRequest struct {
 // }
 
 type AddReactionResponse struct {
-	Reactions []map[string]int `json:"reactions"`
+	Reactions []map[string]any `json:"reactions"`
 }
 
 type GetReactionsByPostIdRequest struct{}
 
 type GetReactionsByPostIdResponse struct{}
+
+type GetReactionsCountByPostIdRequest struct{}
+
+type GetReactionsCountByPostIdResponse struct {
+	Reactions []map[string]any `json:"reactions"`
+}
 
 type ReactionsRequest struct{}
 

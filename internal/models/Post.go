@@ -23,14 +23,16 @@ func (r ReactionType) String() string {
 type Reaction struct {
 	Id        string
 	UserId    string
+	PostId    string
 	Type      string
-	Timestamp int64
+	CreatedAt int64
+	EditedAt  int64
 }
 
 type Post struct {
-	Id         string
-	AuthorId   string
-	CreatedAt  int64
-	Content    string
-	ReactionId *string
+	Id        string
+	AuthorId  string
+	Content   string
+	CreatedAt int64
+	EditedAt  int64
 }

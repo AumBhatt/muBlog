@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"muBlog/internal/api/schemas"
 	"muBlog/internal/models"
 	"muBlog/internal/stores"
@@ -21,11 +22,11 @@ func NewPostService(postStore *stores.PostStore, userStore *stores.UserStore) *P
 func (service *PostService) CreatePost(req schemas.CreatePostRequest) (*schemas.CreatePostResponse, error) {
 
 	post := models.Post{
-		Id:         uuid.NewString(),
-		CreatedAt:  time.Now().UnixMilli(),
-		AuthorId:   req.AuthorId,
-		Content:    req.Content,
-		ReactionId: nil,
+		Id:        fmt.Sprintf("post-%s", uuid.NewString()),
+		AuthorId:  req.AuthorId,
+		Content:   req.Content,
+		CreatedAt: time.Now().UnixMilli(),
+		EditedAt:  time.Now().UnixMilli(),
 	}
 
 	err := service.postStore.CreatePost(post)
@@ -48,10 +49,12 @@ func (service *PostService) AddReaction(req schemas.AddReactionRequest) (*schema
 
 	if reaction == nil {
 		reaction = &models.Reaction{
-			Id:        uuid.NewString(),
+			Id:        fmt.Sprintf("reaction-%s", uuid.NewString()),
 			UserId:    req.UserId,
+			PostId:    req.PostId,
 			Type:      req.Type,
-			Timestamp: time.Now().UnixMilli(),
+			CreatedAt: time.Now().UnixMilli(),
+			EditedAt:  time.Now().UnixMilli(),
 		}
 
 		err = service.postStore.CreateReaction(*reaction)
@@ -65,12 +68,24 @@ func (service *PostService) AddReaction(req schemas.AddReactionRequest) (*schema
 		}
 	}
 
-	data, err := service.postStore.GetReactionsCount(reaction.Id)
+	reactions, err := service.postStore.GetReactionsCountById(req.PostId)
 	if err != nil {
 		return nil, err
 	}
 
 	return &schemas.AddReactionResponse{
-		Reactions: data,
+		Reactions: reactions,
+	}, nil
+}
+
+func (service *PostService) GetReactionsCountByPostId(postId string) (*schemas.GetReactionsCountByPostIdResponse, error) {
+
+	reactions, err := service.postStore.GetReactionsCountById(postId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.GetReactionsCountByPostIdResponse{
+		Reactions: reactions,
 	}, nil
 }

@@ -18,16 +18,28 @@ func NewPostStore(db *database.Connection) *PostStore {
 func (store *PostStore) CreatePost(post models.Post) error {
 
 	stmt, err := store.db.Prepare(`
-		INSERT INTO posts (id, createdAt, authorId, content, reactionId) 
-					VALUES (?, ?, ?, ?, ?)
+		INSERT INTO posts (
+			id, 
+			author_id, 
+			content, 
+			created_at, 
+			edited_at
+		) 
+		VALUES (?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return fmt.Errorf("PostStore.CreatePost db err: %s", err)
 	}
 
-	_, err = stmt.Exec(post.Id, post.CreatedAt, post.AuthorId, post.Content, post.ReactionId)
+	_, err = stmt.Exec(
+		post.Id,
+		post.AuthorId,
+		post.Content,
+		post.CreatedAt,
+		post.EditedAt,
+	)
 	if err != nil {
-		return fmt.Errorf("PostStore.CreatePost err: %s", err)
+		return fmt.Errorf("PostStore.CreatePost exec err: %s", err)
 	}
 
 	return nil
@@ -46,7 +58,7 @@ func (store *PostStore) GetReactionsById(id string) (*models.Reaction, error) {
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
-		return nil, fmt.Errorf("PostStore.GetPostreactionsById err: %s", err)
+		return nil, fmt.Errorf("PostStore.GetReactionsById err: %s", err)
 	}
 
 	return rowData, nil
@@ -55,14 +67,27 @@ func (store *PostStore) GetReactionsById(id string) (*models.Reaction, error) {
 func (store *PostStore) CreateReaction(reaction models.Reaction) error {
 
 	stmt, err := store.db.Prepare(`
-		INSERT INTO reactions (id, userId, type, timestamp) 
-					VALUES (?, ?, ?, ?)
+		INSERT INTO reactions (
+			id, 
+			user_id, 
+			post_id, 
+			type, 
+			created_at, 
+			edited_at
+		) 
+		VALUES (?, ?, ?, ?, ?, ?)
 	`)
 	if err != nil {
 		return fmt.Errorf("PostStore.CreateReaction err: %s", err)
 	}
 
-	_, err = stmt.Exec(reaction.Id, reaction.UserId, reaction.Type, reaction.Timestamp)
+	_, err = stmt.Exec(
+		reaction.Id,
+		reaction.UserId,
+		reaction.PostId,
+		reaction.Type,
+		reaction.CreatedAt,
+		reaction.EditedAt)
 	if err != nil {
 		return fmt.Errorf("PostStore.CreateReaction err: %s", err)
 	}
@@ -127,23 +152,23 @@ func (store *PostStore) GetUsersByReactions(reactionId string) ([]map[string]str
 	return data, nil
 }
 
-func (store *PostStore) GetReactionsCount(reactionId string) ([]map[string]int, error) {
+func (store *PostStore) GetReactionsCountById(postId string) ([]map[string]any, error) {
 
-	var data []map[string]int
+	var data []map[string]any
 
 	stmt, err := store.db.Prepare(`
 		SELECT type, COUNT(*)
 			FROM reactions
-			WHERE id = ?
+			WHERE post_id = ?
 			GROUP BY type
 	`)
 	if err != nil {
-		return nil, fmt.Errorf("PostStore.GetReactionsCount err: %s", err)
+		return nil, fmt.Errorf("PostStore.GetReactionsCountById err: %s", err)
 	}
 
-	rows, err := stmt.Query(reactionId)
+	rows, err := stmt.Query(postId)
 	if err != nil {
-		return nil, fmt.Errorf("PostStore.GetReactionsCount err: %s", err)
+		return nil, fmt.Errorf("PostStore.GetReactionsCountById err: %s", err)
 	}
 
 	for rows.Next() {
@@ -155,8 +180,10 @@ func (store *PostStore) GetReactionsCount(reactionId string) ([]map[string]int, 
 			return nil, err
 		}
 
-		row := map[string]int{}
-		row[reactionType] = count
+		row := map[string]any{
+			"type":  reactionType,
+			"count": count,
+		}
 		data = append(data, row)
 	}
 
