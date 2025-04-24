@@ -26,22 +26,26 @@ type GetByUserIdRequest struct{}
 type GetByUserIdResponse struct{}
 
 type AddReactionRequest struct {
-	PostId       string `json:"postId" validate:"required,uuid"`
-	UserId       string `json:"userId" validate:"required,uuid"`
-	ReactionType string `json:"reactionType" validate:"required"`
+	PostId string `json:"postId" validate:"required,uuid"`
+	UserId string `json:"userId" validate:"required,uuid"`
+	Type   string `json:"type" validate:"required"`
 }
+
+// type AddReactionResponse struct {
+// 	Reactions []struct {
+// 		UserId   string `json:"userId"`
+// 		Username string `json:"username"`
+// 		Type     string `json:"type"`
+// 	}
+// }
 
 type AddReactionResponse struct {
-	Reactions []struct {
-		UserId   string `json:"userId"`
-		Username string `json:"username"`
-		Type     string `json:"type"`
-	}
+	Reactions []map[string]int `json:"reactions"`
 }
 
-type GetReactionCountsRequest struct{}
+type GetReactionsByPostIdRequest struct{}
 
-type GetReactionCountsResponse struct{}
+type GetReactionsByPostIdResponse struct{}
 
 type ReactionsRequest struct{}
 

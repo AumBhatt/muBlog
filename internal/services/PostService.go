@@ -50,7 +50,7 @@ func (service *PostService) AddReaction(req schemas.AddReactionRequest) (*schema
 		reaction = &models.Reaction{
 			Id:        uuid.NewString(),
 			UserId:    req.UserId,
-			Type:      req.ReactionType,
+			Type:      req.Type,
 			Timestamp: time.Now().UnixMilli(),
 		}
 
@@ -59,30 +59,18 @@ func (service *PostService) AddReaction(req schemas.AddReactionRequest) (*schema
 			return nil, err
 		}
 	} else {
-		err = service.postStore.UpdateReaction(reaction.Id, req.ReactionType)
+		err = service.postStore.UpdateReaction(reaction.Id, req.Type)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	data, err := service.postStore.GetUsersByReactions(reaction.Id)
+	data, err := service.postStore.GetReactionsCount(reaction.Id)
 	if err != nil {
 		return nil, err
 	}
 
-	response := schemas.AddReactionResponse{}
-
-	for _, d := range data {
-		response.Reactions = append(response.Reactions, struct {
-			UserId   string `json:"userId"`
-			Username string `json:"username"`
-			Type     string `json:"type"`
-		}{
-			UserId:   d["userId"],
-			Username: d["username"],
-			Type:     d["type"],
-		})
-	}
-
-	return &response, nil
+	return &schemas.AddReactionResponse{
+		Reactions: data,
+	}, nil
 }

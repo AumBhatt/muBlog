@@ -14,7 +14,7 @@ import (
 )
 
 func App() {
-	db := database.New()
+	db := database.New(stores.InitStores)
 	userStore := stores.NewUserStore(db)
 	postStore := stores.NewPostStore(db)
 
@@ -33,7 +33,7 @@ func App() {
 
 	router.GET("/user/:id", userHandler.GetById)
 
-	router.POST("/post/create", middlewares.ValidateRequest[schemas.CreatePostRequest](postHandler.Create))
+	// router.POST("/post/create", middlewares.ValidateRequest[schemas.CreatePostRequest](postHandler.Create))
 	router.POST("/post/react", middlewares.ValidateRequest[schemas.AddReactionRequest](postHandler.React))
 
 	log.Println("App running @ http://localhost:3000")

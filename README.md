@@ -7,7 +7,7 @@ Micro-blogging
 - [x] validation
 
 ### Endpoints
-- [ ] /post/create
+- [x] /post/create
 - [ ] /post/delete
 - [ ] /post/edit
-- [ ] /post/react
+- [ ] /post/{postId}/react

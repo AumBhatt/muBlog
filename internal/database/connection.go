@@ -12,11 +12,20 @@ type Connection struct {
 	*sql.DB
 }
 
-func New() *Connection {
+type DatabaseInitFunc func(*Connection) error
+
+func New(initFunc DatabaseInitFunc) *Connection {
 	db, err := sql.Open("sqlite3", configs.DB_PATH)
 	if err != nil {
-		log.Fatalln("Database: new connection failedn\n", err)
+		log.Fatalln("Database connection err:", err)
 	}
 
-	return &Connection{db}
+	conn := &Connection{db}
+
+	err = initFunc(conn)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	return conn
 }

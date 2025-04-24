@@ -22,12 +22,12 @@ func (store *PostStore) CreatePost(post models.Post) error {
 					VALUES (?, ?, ?, ?, ?)
 	`)
 	if err != nil {
-		return fmt.Errorf("CreatePost db err: %s", err)
+		return fmt.Errorf("PostStore.CreatePost db err: %s", err)
 	}
 
 	_, err = stmt.Exec(post.Id, post.CreatedAt, post.AuthorId, post.Content, post.ReactionId)
 	if err != nil {
-		return fmt.Errorf("CreatePost err: %s", err)
+		return fmt.Errorf("PostStore.CreatePost err: %s", err)
 	}
 
 	return nil
@@ -37,7 +37,7 @@ func (store *PostStore) GetReactionsById(id string) (*models.Reaction, error) {
 
 	stmt, err := store.db.Prepare("SELECT * FROM reactions WHERE id = ?")
 	if err != nil {
-		return nil, fmt.Errorf("GetPostreactionsById err: %s", err)
+		return nil, fmt.Errorf("PostStore.GetPostreactionsById err: %s", err)
 	}
 
 	var rowData *models.Reaction
@@ -46,7 +46,7 @@ func (store *PostStore) GetReactionsById(id string) (*models.Reaction, error) {
 	if err == sql.ErrNoRows {
 		return nil, nil
 	} else if err != nil {
-		return nil, fmt.Errorf("GetPostreactionsById err: %s", err)
+		return nil, fmt.Errorf("PostStore.GetPostreactionsById err: %s", err)
 	}
 
 	return rowData, nil
@@ -59,12 +59,12 @@ func (store *PostStore) CreateReaction(reaction models.Reaction) error {
 					VALUES (?, ?, ?, ?)
 	`)
 	if err != nil {
-		return fmt.Errorf("CreateReaction err: %s", err)
+		return fmt.Errorf("PostStore.CreateReaction err: %s", err)
 	}
 
 	_, err = stmt.Exec(reaction.Id, reaction.UserId, reaction.Type, reaction.Timestamp)
 	if err != nil {
-		return fmt.Errorf("CreateReaction err: %s", err)
+		return fmt.Errorf("PostStore.CreateReaction err: %s", err)
 	}
 
 	return nil
@@ -78,12 +78,12 @@ func (store *PostStore) UpdateReaction(reactionId string, reactionType string) e
 			WHERE id = ?
 	`)
 	if err != nil {
-		return fmt.Errorf("UpdateReaction err: %s", err)
+		return fmt.Errorf("PostStore.UpdateReaction err: %s", err)
 	}
 
 	_, err = stmt.Exec(reactionType, reactionId)
 	if err != nil {
-		return fmt.Errorf("UpdateReaction err: %s", err)
+		return fmt.Errorf("PostStore.UpdateReaction err: %s", err)
 	}
 	return nil
 }
@@ -104,7 +104,7 @@ func (store *PostStore) GetUsersByReactions(reactionId string) ([]map[string]str
 
 	rows, err := stmt.Query(reactionId)
 	if err != nil {
-		return nil, fmt.Errorf("UpdateReaction err: %s", err)
+		return nil, fmt.Errorf("PostStore.GetUsersByReactions err: %s", err)
 	}
 
 	for rows.Next() {
@@ -122,6 +122,42 @@ func (store *PostStore) GetUsersByReactions(reactionId string) ([]map[string]str
 			"username": username,
 			"type":     reactionType,
 		})
+	}
+
+	return data, nil
+}
+
+func (store *PostStore) GetReactionsCount(reactionId string) ([]map[string]int, error) {
+
+	var data []map[string]int
+
+	stmt, err := store.db.Prepare(`
+		SELECT type, COUNT(*)
+			FROM reactions
+			WHERE id = ?
+			GROUP BY type
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("PostStore.GetReactionsCount err: %s", err)
+	}
+
+	rows, err := stmt.Query(reactionId)
+	if err != nil {
+		return nil, fmt.Errorf("PostStore.GetReactionsCount err: %s", err)
+	}
+
+	for rows.Next() {
+		var reactionType string
+		var count int
+
+		err = rows.Scan(&reactionType, &count)
+		if err != nil {
+			return nil, err
+		}
+
+		row := map[string]int{}
+		row[reactionType] = count
+		data = append(data, row)
 	}
 
 	return data, nil
