@@ -37,7 +37,8 @@ func App() {
 	// router.POST("/post/react", middlewares.ValidateRequest[schemas.AddReactionRequest](postHandler.React))
 
 	router.POST("/post/create", postHandler.Create)
-	router.GET("/post/reactions/:postId", postHandler.GetReactionsCountByPostId)
+	router.GET("/post/reactions/detailed/:postId", postHandler.GetReactionsByPostId)
+	router.GET("/post/reactions/count/:postId", postHandler.GetReactionsCountByPostId)
 	router.POST("/post/react", postHandler.React)
 
 	log.Println("App running @ http://localhost:3000")

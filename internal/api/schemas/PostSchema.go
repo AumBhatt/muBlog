@@ -45,7 +45,9 @@ type AddReactionResponse struct {
 
 type GetReactionsByPostIdRequest struct{}
 
-type GetReactionsByPostIdResponse struct{}
+type GetReactionsByPostIdResponse struct {
+	Reactions []map[string]string `json:"reactions"`
+}
 
 type GetReactionsCountByPostIdRequest struct{}
 

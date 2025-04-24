@@ -89,3 +89,15 @@ func (service *PostService) GetReactionsCountByPostId(postId string) (*schemas.G
 		Reactions: reactions,
 	}, nil
 }
+
+func (service *PostService) GetReactionsPostById(postId string) (*schemas.GetReactionsByPostIdResponse, error) {
+
+	reactions, err := service.postStore.GetReactionsByPostId(postId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.GetReactionsByPostIdResponse{
+		Reactions: reactions,
+	}, nil
+}

@@ -113,21 +113,21 @@ func (store *PostStore) UpdateReaction(reactionId string, reactionType string) e
 	return nil
 }
 
-func (store *PostStore) GetUsersByReactions(reactionId string) ([]map[string]string, error) {
+func (store *PostStore) GetReactionsByPostId(postId string) ([]map[string]string, error) {
 
 	var data []map[string]string
 	stmt, err := store.db.Prepare(`
 		SELECT users.id as "userId", users.username as "username", reactions.type as "type"
 			FROM users
 			INNER JOIN reactions ON
-			users.id = reactions.userId
-			WHERE reactions.Id = ?
+			users.id = reactions.user_id
+			WHERE post_id = ?
 	`)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("PostStore.GetUsersByReactions err: %s", err)
 	}
 
-	rows, err := stmt.Query(reactionId)
+	rows, err := stmt.Query(postId)
 	if err != nil {
 		return nil, fmt.Errorf("PostStore.GetUsersByReactions err: %s", err)
 	}
