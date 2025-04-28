@@ -44,7 +44,7 @@ func (store *UserStore) FindByUsername(username string) (*models.User, error) {
 
 func (store *UserStore) CreateUser(user *models.User) error {
 
-	stmt, err := store.db.Prepare("INSERT INTO users (id, username, email, activeSince, password) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := store.db.Prepare("INSERT INTO users (id, username, email, active_since, password) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		return fmt.Errorf("AddUser UserStore: %s", err)
 	}

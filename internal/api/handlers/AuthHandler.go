@@ -44,6 +44,7 @@ func (handler *AuthHandler) Signup(res http.ResponseWriter, req *http.Request, _
 		http.Error(res, fmt.Sprintf("Validation error: %s", errors), http.StatusBadRequest)
 	}
 
+	res.Header().Set("Content-Type", "application/json")
 	response, err := handler.userService.CreateUser(&body)
 	if err != nil {
 		log.Println(err)

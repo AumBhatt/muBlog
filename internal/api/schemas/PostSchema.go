@@ -17,9 +17,14 @@ type DeleteRequest struct{}
 
 type DeleteResponse struct{}
 
-type GetByIdRequest struct{}
-
-type GetByIdResponse struct{}
+type GetByPostIdResponse struct {
+	PostId    string `json:"postId"`
+	AuthorId  string `json:"authorId"`
+	Content   string `json:"content"`
+	CreatedAt int64  `json:"createdAt"`
+	EditedAt  int64  `json:"editedAt"`
+	GetReactionsCountByPostIdResponse
+}
 
 type GetByUserIdRequest struct{}
 
@@ -30,14 +35,6 @@ type AddReactionRequest struct {
 	UserId string `json:"userId" validate:"required,uuid"`
 	Type   string `json:"type" validate:"required"`
 }
-
-// type AddReactionResponse struct {
-// 	Reactions []struct {
-// 		UserId   string `json:"userId"`
-// 		Username string `json:"username"`
-// 		Type     string `json:"type"`
-// 	}
-// }
 
 type AddReactionResponse struct {
 	Reactions []map[string]any `json:"reactions"`
@@ -54,7 +51,3 @@ type GetReactionsCountByPostIdRequest struct{}
 type GetReactionsCountByPostIdResponse struct {
 	Reactions []map[string]any `json:"reactions"`
 }
-
-type ReactionsRequest struct{}
-
-type ReactionsResponse struct{}

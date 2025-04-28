@@ -71,6 +71,25 @@ func (handler *PostHandler) React(res http.ResponseWriter, req *http.Request, _ 
 
 }
 
+func (handler *PostHandler) GetPostById(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+	postId := ps.ByName("postId")
+
+	response, err := handler.postService.GetPost(postId)
+	if err != nil {
+		log.Println("PostHandler.GetPostById:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(response)
+	if err != nil {
+		log.Println("PostHandler.GetPostById:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
 func (handler *PostHandler) GetReactionsCountByPostId(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 
 	postId := ps.ByName("postId")

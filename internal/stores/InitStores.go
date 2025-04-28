@@ -9,8 +9,7 @@ func InitStores(conn *database.Connection) error {
 
 	_, err := conn.Exec(`
 		CREATE TABLE IF NOT EXISTS users (
-			id TEXT PRIMARY KEY NOT NULL
-				CHECK (id LIKE 'user-%'),
+			id TEXT PRIMARY KEY NOT NULL,
 			username TEXT NOT NULL,
 			email TEXT NOT NULL,
 			active_since INTEGER NOT NULL,
@@ -23,10 +22,8 @@ func InitStores(conn *database.Connection) error {
 
 	_, err = conn.Exec(`
 		CREATE TABLE IF NOT EXISTS posts (
-			id TEXT PRIMARY KEY NOT NULL
-				CHECK (id LIKE 'post-%'),
-			author_id TEXT NOT NULL
-				CHECK (author_id LIKE 'user-%'),
+			id TEXT PRIMARY KEY NOT NULL,
+			author_id TEXT NOT NULL,
 			content TEXT,
 			created_at INTEGER NOT NULL,
 			edited_at INTEGER,
@@ -40,12 +37,9 @@ func InitStores(conn *database.Connection) error {
 
 	_, err = conn.Exec(`
 		CREATE TABLE IF NOT EXISTS reactions (
-			id TEXT PRIMARY KEY NOT NULL
-				CHECK (id LIKE 'reaction-%'),
-			user_id TEXT NOT NULL
-				CHECK (user_id LIKE 'user-%'),
-			post_id TEXT NOT NULL
-				CHECK (post_id LIKE 'post-%'),
+			id TEXT PRIMARY KEY NOT NULL,
+			user_id TEXT NOT NULL,
+			post_id TEXT NOT NULL,
 			type TEXT NOT NULL
 				CHECK (type IN ('like', 'dislike', 'funny', 'support')),
 			created_at INTEGER NOT NULL,

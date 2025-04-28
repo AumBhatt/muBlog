@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"muBlog/internal/api/schemas"
 	"muBlog/internal/models"
 	"muBlog/internal/stores"
@@ -42,7 +41,7 @@ func (service *UserService) CreateUser(request *schemas.SignupRequest) (*schemas
 	}
 
 	user := &models.User{
-		Id:          fmt.Sprintf("user-%s", uuid.NewString()),
+		Id:          uuid.NewString(),
 		Username:    request.Username,
 		Email:       request.Email,
 		ActiveSince: time.Now().UnixMilli(),

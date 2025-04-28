@@ -28,7 +28,7 @@ func (store *PostStore) CreatePost(post models.Post) error {
 		VALUES (?, ?, ?, ?, ?)
 	`)
 	if err != nil {
-		return fmt.Errorf("PostStore.CreatePost db err: %s", err)
+		return fmt.Errorf("PostStore.CreatePost prepare err: %s", err)
 	}
 
 	_, err = stmt.Exec(
@@ -43,6 +43,26 @@ func (store *PostStore) CreatePost(post models.Post) error {
 	}
 
 	return nil
+}
+
+func (store *PostStore) GetPostById(postId string) (*models.Post, error) {
+
+	stmt, err := store.db.Prepare(`
+		SELECT * FROM posts
+			WHERE id = ?
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("PostStore.GetPostById prepare err: %s", err)
+	}
+
+	row := stmt.QueryRow(postId)
+	var post models.Post
+	err = row.Scan(&post.Id, &post.AuthorId, &post.Content, &post.CreatedAt, &post.EditedAt)
+	if err != nil {
+		return nil, fmt.Errorf("PostStore.GetPostById prepare err: %s", err)
+	}
+
+	return &post, nil
 }
 
 func (store *PostStore) GetReactionsById(id string) (*models.Reaction, error) {
