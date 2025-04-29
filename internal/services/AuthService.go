@@ -76,8 +76,7 @@ func (service *AuthService) CreateToken(request *schemas.LoginRequest) (*schemas
 }
 
 func (service *AuthService) VerifyToken(tokenString string) (*schemas.ErrorSchema, error) {
-	token, err := jwt.Parse(tokenString[len("Bearer "):], service.authKeyFunc)
-
+	token, err := jwt.Parse(tokenString[len("Bearer "):], service.authKeyFunc, jwt.WithValidMethods([]string{jwt.SigningMethodES256.Alg()}))
 	if err != nil {
 		return nil, err
 	}

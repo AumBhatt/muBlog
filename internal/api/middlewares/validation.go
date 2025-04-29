@@ -16,7 +16,7 @@ import (
 func ValidateRequest[schema any](next httprouter.Handle) func(http.ResponseWriter, *http.Request, httprouter.Params) {
 
 	// execute this wrapper func each time the endpoint is been hit
-	return func(res http.ResponseWriter, req *http.Request, params httprouter.Params) {
+	return func(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 
 		bodyBytes, err := io.ReadAll(req.Body)
 		if err != nil {
@@ -53,6 +53,6 @@ func ValidateRequest[schema any](next httprouter.Handle) func(http.ResponseWrite
 
 		req.Body = io.NopCloser(bytes.NewBuffer(bodyBytes))
 
-		next(res, req, params)
+		next(res, req, ps)
 	}
 }

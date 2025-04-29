@@ -31,12 +31,27 @@ func App() {
 	router.POST("/auth/signup", middlewares.ValidateRequest[schemas.SignupRequest](authHandler.Signup))
 	router.POST("/auth/login", middlewares.ValidateRequest[schemas.LoginRequest](authHandler.Login))
 
-	router.GET("/user/:id", userHandler.GetById)
+	router.GET("/user/:id",
+		middlewares.Authentication(
+			authService,
+			userHandler.GetById,
+		),
+	)
 
 	router.GET("/post/get/:postId", postHandler.GetPostById)
-	router.POST("/post/create", middlewares.ValidateRequest[schemas.CreatePostRequest](postHandler.Create))
+	router.POST("/post/create",
+		middlewares.Authentication(
+			authService,
+			middlewares.ValidateRequest[schemas.CreatePostRequest](postHandler.Create),
+		),
+	)
 
-	router.POST("/post/react", middlewares.ValidateRequest[schemas.AddReactionRequest](postHandler.React))
+	router.POST("/post/react",
+		middlewares.Authentication(
+			authService,
+			middlewares.ValidateRequest[schemas.AddReactionRequest](postHandler.React),
+		),
+	)
 	router.GET("/post/reactions/detailed/:postId", postHandler.GetReactionsByPostId)
 	router.GET("/post/reactions/count/:postId", postHandler.GetReactionsCountByPostId)
 

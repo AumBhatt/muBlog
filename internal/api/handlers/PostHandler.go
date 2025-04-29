@@ -74,6 +74,14 @@ func (handler *PostHandler) React(res http.ResponseWriter, req *http.Request, _ 
 func (handler *PostHandler) GetPostById(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
 
 	postId := ps.ByName("postId")
+	if postId == "" {
+		res.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(res).Encode(&schemas.ErrorSchema{
+			Code:    "MissingPostId",
+			Message: "Error: postId is missing in path params.",
+		})
+		return
+	}
 
 	response, err := handler.postService.GetPost(postId)
 	if err != nil {
