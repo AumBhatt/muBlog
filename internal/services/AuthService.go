@@ -1,12 +1,10 @@
 package services
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
-	"crypto/rand"
 	"fmt"
 	"log"
 	"muBlog/internal/api/schemas"
+	"muBlog/internal/services/utils"
 	"muBlog/internal/stores"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -14,12 +12,12 @@ import (
 )
 
 type AuthService struct {
-	secret    *ecdsa.PrivateKey
+	secret    []byte
 	userStore *stores.UserStore
 }
 
 func NewAuthService(userStore *stores.UserStore) *AuthService {
-	secret, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+	secret, err := utils.GenerateNewSecret()
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,7 +56,7 @@ func (service *AuthService) CreateToken(request *schemas.LoginRequest) (*schemas
 	}
 
 	token := jwt.NewWithClaims(
-		jwt.SigningMethodES256,
+		jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"username": request.Username,
 		},
@@ -76,7 +74,7 @@ func (service *AuthService) CreateToken(request *schemas.LoginRequest) (*schemas
 }
 
 func (service *AuthService) VerifyToken(tokenString string) (*schemas.ErrorSchema, error) {
-	token, err := jwt.Parse(tokenString[len("Bearer "):], service.authKeyFunc, jwt.WithValidMethods([]string{jwt.SigningMethodES256.Alg()}))
+	token, err := jwt.Parse(tokenString[len("Bearer "):], service.authKeyFunc)
 	if err != nil {
 		return nil, err
 	}
