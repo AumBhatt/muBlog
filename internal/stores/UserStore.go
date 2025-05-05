@@ -56,3 +56,36 @@ func (store *UserStore) CreateUser(user *models.User) error {
 
 	return nil
 }
+
+func (store *UserStore) AddFollower(follow *models.Follow) error {
+
+	stmt, err := store.db.Prepare("INSERT INTO follow (id, user_id, followers_id) VALUES (?, ?, ?)")
+	if err != nil {
+		return fmt.Errorf("UserStore.AddFollower: %s", err)
+	}
+
+	_, err = stmt.Exec(follow.Id, follow.UserId, follow.FollowerId)
+	if err != nil {
+		return fmt.Errorf("UserStore.AddFollower: %s", err)
+	}
+
+	return nil
+}
+
+func (store *UserStore) RemoveFollower(userId string, followerId string) error {
+
+	stmt, err := store.db.Prepare(`
+		DELETE FROM follow
+			WHERE userId = ? AND followerId = ?
+	`)
+	if err != nil {
+		return fmt.Errorf("UserStore.AddFollower: %s", err)
+	}
+
+	_, err = stmt.Exec(userId, followerId)
+	if err != nil {
+		return fmt.Errorf("UserStore.RemoveFollower: %s", err)
+	}
+
+	return nil
+}

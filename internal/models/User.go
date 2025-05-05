@@ -7,3 +7,9 @@ type User struct {
 	ActiveSince int64
 	Password    string
 }
+
+type Follow struct {
+	Id         string
+	UserId     string
+	FollowerId string
+}

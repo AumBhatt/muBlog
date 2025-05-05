@@ -58,3 +58,32 @@ func (service *UserService) CreateUser(request *schemas.SignupRequest) (*schemas
 		Username: &user.Username,
 	}, nil
 }
+
+func (service *UserService) Follow(request *schemas.FollowRequest) (*schemas.FollowResponse, error) {
+
+	follow := models.Follow{
+		Id:         uuid.NewString(),
+		UserId:     request.UserId,
+		FollowerId: request.FollowerId,
+	}
+
+	err := service.store.AddFollower(&follow)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.FollowResponse{
+		FollowId: follow.Id,
+	}, nil
+}
+
+func (service *UserService) Unfollow(request *schemas.UnfollowRequest) (*schemas.UnfollowResponse, error) {
+
+	err := service.store.RemoveFollower(request.UserId, request.FollowerId)
+	if err != nil {
+		return nil, err
+	}
+
+	// return &schemas.UnfollowResponse{}
+	return nil, nil
+}

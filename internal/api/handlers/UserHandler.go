@@ -48,3 +48,41 @@ func (handler *UserHandler) GetById(res http.ResponseWriter, req *http.Request, 
 		ActiveSince: user.ActiveSince,
 	})
 }
+
+func (handler *UserHandler) Follow(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+	var body *schemas.FollowRequest
+	err := json.NewDecoder(req.Body).Decode(body)
+	if err != nil {
+		log.Println("UserHandler.Follow err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	response, err := handler.userService.Follow(body)
+	if err != nil {
+		log.Println("UserHandler.Follow err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(response)
+	if err != nil {
+		log.Println("UserHandler.Follow err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (handler *UserHandler) Unfollow(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+	var body *schemas.UnfollowRequest
+	err := json.NewDecoder(req.Body).Decode(body)
+	if err != nil {
+		log.Println("UserHandler.Unfollow err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// response, err := handler.
+}

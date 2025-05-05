@@ -52,5 +52,18 @@ func InitStores(conn *database.Connection) error {
 		return fmt.Errorf("InitStore - reactions table creation err: %s", err)
 	}
 
+	_, err = conn.Exec(`
+		CREATE TABLE IF NOT EXISTS follow (
+			id TEXT PRIMARY KEY NOT NULL,
+			user_id TEXT NOT NULL,
+			followers_id TEXT NOT NULL,
+			FOREIGN KEY (user_id) REFERENCES users(id),
+			FOREIGN KEY (followers_id) REFERENCES users(id)
+		)
+	`)
+	if err != nil {
+		return fmt.Errorf("InitStore - reactions table creation err: %s", err)
+	}
+
 	return nil
 }
