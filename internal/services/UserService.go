@@ -84,6 +84,33 @@ func (service *UserService) Unfollow(request *schemas.UnfollowRequest) (*schemas
 		return nil, err
 	}
 
-	// return &schemas.UnfollowResponse{}
-	return nil, nil
+	return &schemas.UnfollowResponse{
+		Status: "success",
+	}, nil
+}
+
+func (service *UserService) GetFollowersById(userId string) (*schemas.GetFollowersByIdResponse, error) {
+
+	data, err := service.store.GetFollowersById(userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.GetFollowersByIdResponse{
+		UserId:    userId,
+		Followers: *data,
+	}, nil
+}
+
+func (service *UserService) GetFollowingById(followersId string) (*schemas.GetFollowingByIdResponse, error) {
+
+	data, err := service.store.GetFollowingById(followersId)
+	if err != nil {
+		return nil, err
+	}
+
+	return &schemas.GetFollowingByIdResponse{
+		FollowersId: followersId,
+		Following:   *data,
+	}, nil
 }

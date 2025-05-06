@@ -84,5 +84,81 @@ func (handler *UserHandler) Unfollow(res http.ResponseWriter, req *http.Request,
 		return
 	}
 
-	// response, err := handler.
+	response, err := handler.userService.Unfollow(body)
+	if err != nil {
+		log.Println("UserHandler.Unfollow err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(response)
+	if err != nil {
+		log.Println("UserHandler.Unfollow err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (handler *UserHandler) GetFollowersById(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+	userId := ps.ByName("userId")
+	if userId == "" {
+		log.Println("UserHandler.GetFollowersById err: userId missing")
+		res.WriteHeader(http.StatusBadRequest)
+		err := json.NewEncoder(res).Encode(&schemas.ErrorSchema{
+			Code:    "MissingUserId",
+			Message: "Error: userId is missing in path params.",
+		})
+		if err != nil {
+			log.Println("UserHandler.GetFollowersById err:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	data, err := handler.userService.GetFollowersById(userId)
+	if err != nil {
+		log.Println("UserHandler.GetFollowersById err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(data)
+	if err != nil {
+		log.Println("UserHandler.GetFollowersById err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (handler *UserHandler) GetFollowingById(res http.ResponseWriter, req *http.Request, ps httprouter.Params) {
+
+	followersId := ps.ByName("followersId")
+	if followersId == "" {
+		log.Println("UserHandler.GetFollowingById err: followersId missing")
+		res.WriteHeader(http.StatusBadRequest)
+		err := json.NewEncoder(res).Encode(&schemas.ErrorSchema{
+			Code:    "MissingFollowersId",
+			Message: "Error: followersId is missing in path params.",
+		})
+		if err != nil {
+			log.Println("UserHandler.GetFollowingById err:", err)
+			res.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	data, err := handler.userService.GetFollowingById(followersId)
+	if err != nil {
+		log.Println("UserHandler.GetFollowingById err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(data)
+	if err != nil {
+		log.Println("UserHandler.GetFollowingById err:", err)
+		res.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }

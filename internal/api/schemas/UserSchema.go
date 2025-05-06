@@ -19,7 +19,6 @@ type FollowRequest struct {
 
 type FollowResponse struct {
 	FollowId string `json:"followId,omitempty"`
-	*ErrorSchema
 }
 
 type UnfollowRequest struct {
@@ -29,5 +28,14 @@ type UnfollowRequest struct {
 
 type UnfollowResponse struct {
 	Status string
-	*ErrorSchema
+}
+
+type GetFollowersByIdResponse struct {
+	UserId    string
+	Followers []map[string]string
+}
+
+type GetFollowingByIdResponse struct {
+	FollowersId string
+	Following   []map[string]string
 }

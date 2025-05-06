@@ -89,3 +89,73 @@ func (store *UserStore) RemoveFollower(userId string, followerId string) error {
 
 	return nil
 }
+
+func (store *UserStore) GetFollowersById(userId string) (*[]map[string]string, error) {
+
+	var data []map[string]string
+	stmt, err := store.db.Prepare(`
+		SELECT user.id as userId, user.username as username
+		FROM follow
+		INNER JOIN users ON
+		follow.user_id = users.id
+			WHERE user_id = ?
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("UserStore.GetFollowersById: %s", err)
+	}
+
+	rows, err := stmt.Query(userId)
+	if err != nil {
+		return nil, fmt.Errorf("UserStore.GetFollowersById: %s", err)
+	}
+
+	for rows.Next() {
+		var userId, username string
+		err = rows.Scan(userId, username)
+		if err != nil {
+			return nil, fmt.Errorf("UserStore.GetFollowersById: %s", err)
+		}
+
+		data = append(data, map[string]string{
+			"userId":   userId,
+			"username": username,
+		})
+	}
+
+	return &data, nil
+}
+
+func (store *UserStore) GetFollowingById(followerId string) (*[]map[string]string, error) {
+
+	var data []map[string]string
+	stmt, err := store.db.Prepare(`
+		SELECT users.id as userId, users.username as username
+		FROM follow
+		INNER JOIN users ON
+		follow.followers_id = users.id
+			WHERE followers_id = ?
+	`)
+	if err != nil {
+		return nil, fmt.Errorf("UserStore.GetFollowingById: %s", err)
+	}
+
+	rows, err := stmt.Query(followerId)
+	if err != nil {
+		return nil, fmt.Errorf("UserStore.GetFollowingById: %s", err)
+	}
+
+	for rows.Next() {
+		var userId, username string
+		err = rows.Scan(userId, username)
+		if err != nil {
+			return nil, fmt.Errorf("UserStore.GetFollowingById: %s", err)
+		}
+
+		data = append(data, map[string]string{
+			"userId":   userId,
+			"username": username,
+		})
+	}
+
+	return &data, nil
+}

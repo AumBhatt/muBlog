@@ -38,7 +38,36 @@ func App() {
 		),
 	)
 
+	router.POST("/user/follow",
+		middlewares.Authentication(
+			authService,
+			middlewares.ValidateRequest[schemas.FollowRequest](userHandler.Follow),
+		),
+	)
+
+	router.POST("/user/unfollow",
+		middlewares.Authentication(
+			authService,
+			middlewares.ValidateRequest[schemas.UnfollowRequest](userHandler.Unfollow),
+		),
+	)
+
+	router.GET("/user/followers/:userId",
+		middlewares.Authentication(
+			authService,
+			userHandler.GetFollowersById,
+		),
+	)
+
+	router.GET("/user/following/:followersId",
+		middlewares.Authentication(
+			authService,
+			userHandler.GetFollowingById,
+		),
+	)
+
 	router.GET("/post/get/:postId", postHandler.GetPostById)
+
 	router.POST("/post/create",
 		middlewares.Authentication(
 			authService,
